@@ -12,3 +12,5 @@
 /.aswb/
 /.clwb/
 /.idea/
+
+MODULE.bazel.lock

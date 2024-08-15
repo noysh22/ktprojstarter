@@ -1,20 +1,26 @@
+load("@aspect_bazel_lib//lib:expand_template.bzl", "expand_template")
+load("@aspect_bazel_lib//lib:tar.bzl", "tar")
+load("@container_structure_test//:defs.bzl", "container_structure_test")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
 
 package(default_visibility = ["//visibility:public"])
 
+PROJ_NAME = "ktprojstarter"
+
 java_binary(
-    name = "server",
+    name = PROJ_NAME,
     data = [
     ],
     main_class = "io.proj.MainKt",
     runtime_deps = [
-        ":server_lib",
+        ":%s_lib" % PROJ_NAME,
     ],
 )
 
 kt_jvm_library(
-    name = "server_lib",
+    name = PROJ_NAME + "_lib",
     srcs = glob(
         include = [
             "src/main/kotlin/**/*.kt",
@@ -27,7 +33,7 @@ kt_jvm_library(
 )
 
 java_library(
-    name = "java_test_deps",
+    name = PROJ_NAME + "_java_test_deps",
     testonly = True,
     exports = [
         "@maven//:io_javalin_javalin",
@@ -37,18 +43,61 @@ java_library(
 )
 
 kt_jvm_library(
-    name = "kotlin_test_deps",
+    name = PROJ_NAME + "_kotlin_test_deps",
     testonly = True,
     srcs = glob(["src/test/kotlin/**/*.kt"]),
     deps = [
-        ":java_test_deps",
+        ":%s_java_test_deps" % PROJ_NAME,
     ],
 )
 
 java_test(
-    name = "tests",
+    name = PROJ_NAME + "_tests",
     test_class = "io.proj.ExampleTest",
     runtime_deps = [
-        ":kotlin_test_deps",
+        ":%s_kotlin_test_deps" % PROJ_NAME,
     ],
+)
+
+tar(
+    name = PROJ_NAME + "_layer",
+    srcs = [PROJ_NAME + "_deploy.jar"],
+)
+
+oci_image(
+    name = PROJ_NAME + "_image",
+    base = "@distroless_java_debug",
+    entrypoint = [
+        "java",
+        "-jar",
+        "/%s_deploy.jar" % PROJ_NAME,
+    ],
+    tars = [":%s_layer" % PROJ_NAME],
+)
+
+# template for tagging oci images with git hash of current HEAD
+expand_template(
+    name = PROJ_NAME + "_stamped",
+    out = PROJ_NAME + "_stamped.tags.txt",
+    stamp = 1,
+    stamp_substitutions = {
+        "{STABLE_GIT_HASH_SHORT}": "{{STABLE_GIT_HASH_SHORT}}",
+    },
+    template = [
+        PROJ_NAME + ":{STABLE_GIT_HASH_SHORT}",
+        PROJ_NAME + ":latest",
+    ],
+)
+
+oci_load(
+    name = PROJ_NAME + "_load",
+    image = ":%s_image" % PROJ_NAME,
+    repo_tags = ":%s_stamped" % PROJ_NAME,
+)
+
+container_structure_test(
+    name = PROJ_NAME + "_container_test",
+    configs = ["container-structure-test.yaml"],
+    image = ":%s_image" % PROJ_NAME,
+    tags = ["requires-docker"],
 )

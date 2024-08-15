@@ -15,6 +15,30 @@ DST=$2
 
 IGNORE=(".git" ".idea" "bazel-*" "create-proj.sh")
 
+#!/bin/bash
+
+# Default list of files
+#DEFAULT_FILES=("file1.txt" "file2.txt" "file3.txt")
+
+## Check if the environment variable FILE_LIST is set
+#if [ -z "$FILE_LIST" ]; then
+#    # If FILE_LIST is not set, use the default list only
+#    FILES=("${DEFAULT_FILES[@]}")
+#else
+#    # If FILE_LIST is set, split it into an array
+#    IFS=',' read -r -a ENV_FILES <<< "$FILE_LIST"
+#    # Merge the default files with the files from the environment variable
+#    FILES=("${DEFAULT_FILES[@]}" "${ENV_FILES[@]}")
+#fi
+#
+## Print the list of files
+#echo "List of files:"
+#for file in "${FILES[@]}"; do
+#    echo "$file"
+#done
+
+# Your logic here using the files in the FILES array
+
 NAME_LC=$(echo "$NAME_CC" | tr '[:upper:]' '[:lower:]')
 NAME_PC="$(tr '[:upper:]' '[:lower:]' <<< ${NAME_CC:0:1})${NAME_CC:1}"
 

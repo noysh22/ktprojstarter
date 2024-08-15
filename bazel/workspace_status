@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+echo "STABLE_GIT_HASH_SHORT $(git rev-parse --short HEAD)"
