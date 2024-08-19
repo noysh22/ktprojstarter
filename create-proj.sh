@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+set -x
+
 if [ -z "$1" ]; then
-  echo "usage: $0 NewProjectName Destination"
+  echo "usage: $0 [-m|--monorepo]  NewProjectName Destination"
   exit 1
 fi
 
@@ -10,34 +12,30 @@ if [ "$(uname)" = "Darwin" ]; then
   SED="gsed"
 fi
 
+MONOREPO_FLAG=0
+
+# Parse the arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -m|--monorepo)
+      MONOREPO_FLAG=1
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
 NAME_CC=$1
 DST=$2
 
-IGNORE=(".git" ".idea" "bazel-*" "create-proj.sh")
+IGNORE=(".git" ".idea" "bazel-*" "create-proj.sh" "MODULE.bazel.lock" ".ijwb")
 
-#!/bin/bash
-
-# Default list of files
-#DEFAULT_FILES=("file1.txt" "file2.txt" "file3.txt")
-
-## Check if the environment variable FILE_LIST is set
-#if [ -z "$FILE_LIST" ]; then
-#    # If FILE_LIST is not set, use the default list only
-#    FILES=("${DEFAULT_FILES[@]}")
-#else
-#    # If FILE_LIST is set, split it into an array
-#    IFS=',' read -r -a ENV_FILES <<< "$FILE_LIST"
-#    # Merge the default files with the files from the environment variable
-#    FILES=("${DEFAULT_FILES[@]}" "${ENV_FILES[@]}")
-#fi
-#
-## Print the list of files
-#echo "List of files:"
-#for file in "${FILES[@]}"; do
-#    echo "$file"
-#done
-
-# Your logic here using the files in the FILES array
+# Add monorepo-specific files to ignore list if the flag is set
+if [ "$MONOREPO_FLAG" -eq 1 ]; then
+  IGNORE+=("MODULE.bazel" "LICENSE.md" "WORKSPACE" ".bazelrc" ".gitignore")
+fi
 
 NAME_LC=$(echo "$NAME_CC" | tr '[:upper:]' '[:lower:]')
 NAME_PC="$(tr '[:upper:]' '[:lower:]' <<< ${NAME_CC:0:1})${NAME_CC:1}"
@@ -62,6 +60,8 @@ for item in "${IGNORE[@]}"; do
   exclude_options+=("--exclude=${item}")
 done
 
+echo "excluding: ${exclude_options[@]}"
+
 rsync -av "${exclude_options[@]}" "$TEMPLATE_ROOT/" "$PROJECT_ROOT"
 
 rename_and_replace() {
@@ -83,4 +83,4 @@ rename_and_replace() {
   done
 }
 
-rename_and_replace "$PROJECT_ROOT"
+#rename_and_replace "$PROJECT_ROOT"
