@@ -49,20 +49,6 @@ load("@container_structure_test//:repositories.bzl", "container_structure_test_r
 
 container_structure_test_register_toolchain(name = "cst")
 
-#http_archive(
-#    name = "rules_java",
-#    sha256 = "eb7db63ed826567b2ceb1ec53d6b729e01636f72c9f5dfb6d2dfe55ad69d1d2a",
-#    urls = [
-#        "https://github.com/bazelbuild/rules_java/releases/download/7.2.0/rules_java-7.2.0.tar.gz",
-#    ],
-#)
-#
-#load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
-#
-#rules_java_dependencies()
-#
-#rules_java_toolchains()
-
 RULES_JVM_EXTERNAL_TAG = "6.2"
 
 RULES_JVM_EXTERNAL_SHA = "808cb5c30b5f70d12a2a745a29edc46728fd35fa195c1762a596b63ae9cebe05"
