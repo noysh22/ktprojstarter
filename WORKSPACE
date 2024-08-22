@@ -1,5 +1,18 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.1/bazel-skylib-1.4.1.tar.gz",
+    ],
+)
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
 ASPECT_BAZEL_LIB_TAG = "2.8.0"
 
 ASPECT_BAZEL_LIB_SHA = "cea19e6d8322fb212f155acb58d1590f632e53abde7f1be5f0a086a93cf4c9f4"
@@ -36,6 +49,20 @@ load("@container_structure_test//:repositories.bzl", "container_structure_test_r
 
 container_structure_test_register_toolchain(name = "cst")
 
+#http_archive(
+#    name = "rules_java",
+#    sha256 = "eb7db63ed826567b2ceb1ec53d6b729e01636f72c9f5dfb6d2dfe55ad69d1d2a",
+#    urls = [
+#        "https://github.com/bazelbuild/rules_java/releases/download/7.2.0/rules_java-7.2.0.tar.gz",
+#    ],
+#)
+#
+#load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
+#
+#rules_java_dependencies()
+#
+#rules_java_toolchains()
+
 RULES_JVM_EXTERNAL_TAG = "6.2"
 
 RULES_JVM_EXTERNAL_SHA = "808cb5c30b5f70d12a2a745a29edc46728fd35fa195c1762a596b63ae9cebe05"
@@ -55,38 +82,85 @@ load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
 
 rules_jvm_external_setup()
 
-load("@rules_jvm_external//:defs.bzl", "maven_install")
+# --- GRPC -----------------------------------------------------------------------------------------
 
-maven_install(
-    artifacts = [
-        "io.javalin:javalin:5.6.1",
-        "org.slf4j:slf4j-simple:2.0.9",
-        "junit:junit:4.13.2",
-        "org.assertj:assertj-core:3.20.2",
-    ],
-    repositories = [
-        "https://maven.google.com",
-        "https://repo1.maven.org/maven2",
-    ],
+RULES_GRPC_TAG = "4.6.0"
+
+http_archive(
+    name = "rules_proto_grpc",
+    integrity = "sha256-wNcY9NiSxSQCVQTmelv+gzYLOpguZUvHH+11FOuKyK0=",
+    strip_prefix = "rules_proto_grpc-%s" % RULES_GRPC_TAG,
+    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/%s.tar.gz" % RULES_GRPC_TAG],
 )
+
+load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_proto_grpc_toolchains")
+
+rules_proto_grpc_toolchains()
+
+rules_proto_grpc_repos()
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
+load("@rules_proto_grpc//java:repositories.bzl", rules_proto_grpc_java_repos = "java_repos")
+
+rules_proto_grpc_java_repos()
+
+# --- Kotlin
 
 rules_kotlin_version = "1.9.6"
 
 rules_kotlin_sha = "3b772976fec7bdcda1d84b9d39b176589424c047eb2175bed09aac630e50af43"
 
 http_archive(
-    name = "rules_kotlin",
+    name = "io_bazel_rules_kotlin",
     sha256 = rules_kotlin_sha,
     urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v%s/rules_kotlin-v%s.tar.gz" % (rules_kotlin_version, rules_kotlin_version)],
 )
 
-load("@rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
+load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
 
 kotlin_repositories()  # if you want the default. Otherwise see custom kotlinc distribution below
 
-load("@rules_kotlin//kotlin:core.bzl", "kt_register_toolchains")
+register_toolchains("//bazel:kotlin_toolchain")
 
-kt_register_toolchains()  # to use the default toolchain, otherwise see toolchains below
+# --- GRPC Kotlin -------------------------------------------------------------------------------------
+
+GRPC_KOTLIN_VERSION = "a969a91ca37867fa28d83fca234a2b4ced7b1540"  # v1.4.2
+
+http_archive(
+    name = "com_github_grpc_grpc_kotlin",
+    sha256 = "d5b5191ce37afea2a6a04915ddc1e54d121c524ccbdb8481fa9376a7936af0a7",
+    strip_prefix = "grpc-kotlin-%s" % GRPC_KOTLIN_VERSION,
+    urls = ["https://github.com/grpc/grpc-kotlin/archive/%s.zip" % GRPC_KOTLIN_VERSION],
+)
+
+load("@com_github_grpc_grpc_kotlin//:repositories.bzl", "grpc_kt_repositories")
+
+grpc_kt_repositories()
+
+# --- Maven deps
+
+load("//bazel:maven.bzl", "maven_deps")
+
+maven_deps()
+
+load("@maven//:defs.bzl", "pinned_maven_install")
+
+pinned_maven_install()
+
+load("@maven//:compat.bzl", "compat_repositories")
+
+compat_repositories()
+
+load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
+
+grpc_java_repositories()
+
+# --- OCI
 
 RULES_OCI_TAG = "2.0.0-beta2"
 

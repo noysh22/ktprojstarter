@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package ktprojstarter;
+
+service KtProjStarterService {
+  rpc Echo (EchoRequest) returns (EchoResponse);
+}
+
+message EchoRequest {
+  string msg = 1;
+}
+
+message EchoResponse {
+  string msg = 1;
+}
