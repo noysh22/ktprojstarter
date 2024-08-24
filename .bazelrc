@@ -1,9 +1,9 @@
 build --workspace_status_command=bazel/workspace_status
 
 # java toolchain
-build --java_language_version=17
-build --tool_java_language_version=17
-build --tool_java_runtime_version=remotejdk_17
+build --java_language_version=21
+build --tool_java_language_version=21
+build --tool_java_runtime_version=remotejdk_21
 
 # testing
 test --test_output=errors
