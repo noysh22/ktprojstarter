@@ -1,13 +1,12 @@
 package io.proj.ktprojstarter
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test;
+import org.junit.Test
 
 @Suppress("FunctionName")
-class ExampleTest {
-
+class AnotherTest {
     @Test
-    fun `hello world`() {
+    fun `another test`() {
         assertThat(1).isEqualTo(1)
     }
 }

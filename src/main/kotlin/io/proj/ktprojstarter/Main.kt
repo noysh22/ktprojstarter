@@ -1,4 +1,4 @@
-package io.proj
+package io.proj.ktprojstarter
 
 import io.javalin.Javalin
 

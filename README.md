@@ -3,7 +3,7 @@
 ## Start the server
 
 ```bash
-bazel run //:server
+bazel run //:ktprojstarter
 ```
 
 
