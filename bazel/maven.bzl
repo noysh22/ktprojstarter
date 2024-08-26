@@ -3,15 +3,23 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse")
 
 MAVEN_DEPS = [
-    "io.javalin:javalin:5.6.1",
+    "io.javalin:javalin:6.2.0",
     "org.slf4j:slf4j-simple:2.0.9",
     "junit:junit:4.13.2",
     "org.assertj:assertj-core:3.20.2",
     "io.netty:netty-all:4.1.87.Final",
     "com.google.guava:guava:jar:33.3.0-jre",
+    "com.google.code.gson:gson:2.11.0",
+
+    # kotlinx libs
     "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0",
     "org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.8.0",
     #    "org.jetbrains.kotlinx:kotlinx-coroutines-guave:1.8.0",
+
+    # Ktor
+    "io.ktor:ktor-client-core:2.3.12",
+    "io.ktor:ktor-client-cio-jvm:2.3.12",
+    "io.ktor:ktor-http-jvm:2.3.12",
 ]
 
 MAVEN_SUPRESSED = [

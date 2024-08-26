@@ -28,6 +28,7 @@ kt_jvm_library(
     ),
     deps = [
         "@maven//:io_javalin_javalin",
+        "@maven//:org_slf4j_slf4j_api",
         "@maven//:org_slf4j_slf4j_simple",
     ],
 )
@@ -47,7 +48,13 @@ kt_jvm_library(
     testonly = True,
     srcs = glob(["src/test/kotlin/**/*.kt"]),
     deps = [
-        ":%s_java_test_deps" % PROJ_NAME,
+        ":%s_lib" % PROJ_NAME,
+        "@maven//:com_google_code_gson_gson",
+        "@maven//:io_javalin_javalin",
+        "@maven//:io_ktor_ktor_client_cio_jvm",
+        "@maven//:io_ktor_ktor_client_core",
+        "@maven//:junit_junit",
+        "@maven//:org_assertj_assertj_core",
     ],
 )
 
