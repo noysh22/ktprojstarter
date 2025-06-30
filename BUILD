@@ -2,9 +2,10 @@ load("@aspect_bazel_lib//lib:expand_template.bzl", "expand_template")
 load("@aspect_bazel_lib//lib:tar.bzl", "tar")
 load("@container_structure_test//:defs.bzl", "container_structure_test")
 load("@io_bazel_rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_kotlinc_options")
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library", "kt_jvm_test")
+load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("//bazel/tools:java.bzl", "glob2pkg", "java_junit5_tests")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -47,15 +48,15 @@ java_binary(
     ],
 )
 
-# Single test definition that collects all test files
-kt_jvm_test(
+kt_jvm_library(
     name = PROJ_NAME + "_tests",
-    args = [
-        "--scan-classpath",  # Discovers all tests in the classpath
-        # Optional: Include custom test name patterns (e.g., *Should.kt)
-        "--include-classname=.*(Test|Should)",
-    ],
-    main_class = "org.junit.platform.console.ConsoleLauncher",
+    testonly = 1,
+    srcs = glob(
+        [
+            "src/test/kotlin/**/*.kt",
+        ],
+    ),
+    visibility = ["//visibility:public"],
     deps = [
         ":%s_lib" % PROJ_NAME,
         "@maven//:com_google_code_gson_gson",
@@ -65,9 +66,23 @@ kt_jvm_test(
         "@maven//:org_assertj_assertj_core",
         "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_test",
         "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_test_jvm",
-        "@maven//:org_junit_jupiter_junit_jupiter",
-        "@maven//:org_junit_jupiter_junit_jupiter_params",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+        "@maven//:org_junit_jupiter_junit_jupiter_engine",
         "@maven//:org_junit_platform_junit_platform_console",
+    ],
+)
+
+# Single test definition that collects all test files
+java_junit5_tests(
+    name = "small_tests",
+    size = "small",
+    test_classes = glob2pkg(
+        include = [
+            "src/test/kotlin/**/*Test.kt",
+        ],
+    ),
+    runtime_deps = [
+        ":%s_tests" % PROJ_NAME,
     ],
 )
 

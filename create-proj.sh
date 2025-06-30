@@ -64,23 +64,58 @@ echo "excluding: ${exclude_options[@]}"
 
 rsync -av "${exclude_options[@]}" "$TEMPLATE_ROOT/" "$PROJECT_ROOT"
 
-rename_and_replace() {
-  for f in $(ls -d -1 $1/*)
-  do
-    local nf=$(echo "$f" | $SED "$RE_CC" | $SED "$RE_LC" | $SED "$RE_PC")
-    if [ "$f" != "$nf" ]; then
-      mv "$f" "$nf"
-    fi
-    echo "file: $nf"
-    if [ -f "$nf" ]; then
-      $SED -i "$RE_CC" "$nf"
-      $SED -i "$RE_LC" "$nf"
-      $SED -i "$RE_PC" "$nf"
-    fi
-    if [ -d "$nf" ]; then
-      rename_and_replace "$nf"
+# Function to replace content in files
+replace_content_in_files() {
+  echo "Replacing content in files..."
+  find "$PROJECT_ROOT" -type f \( -name "*.kt" -o -name "*.java" -o -name "*.yaml" -o -name "*.yml" -o -name "*.md" -o -name "*.txt" -o -name "*.json" -o -name "*.bzl" -o -name "*.bazel" -o -name "BUILD*" -o -name "MODULE.bazel" -o -name "*.sh" \) -exec $SED -i "$RE_CC" {} \;
+  find "$PROJECT_ROOT" -type f \( -name "*.kt" -o -name "*.java" -o -name "*.yaml" -o -name "*.yml" -o -name "*.md" -o -name "*.txt" -o -name "*.json" -o -name "*.bzl" -o -name "*.bazel" -o -name "BUILD*" -o -name "MODULE.bazel" -o -name "*.sh" \) -exec $SED -i "$RE_LC" {} \;
+  find "$PROJECT_ROOT" -type f \( -name "*.kt" -o -name "*.java" -o -name "*.yaml" -o -name "*.yml" -o -name "*.md" -o -name "*.txt" -o -name "*.json" -o -name "*.bzl" -o -name "*.bazel" -o -name "BUILD*" -o -name "MODULE.bazel" -o -name "*.sh" \) -exec $SED -i "$RE_PC" {} \;
+}
+
+# Function to rename directories (deepest first to avoid path issues)
+rename_directories() {
+  echo "Renaming directories..."
+  # Find all directories, sort by depth (deepest first) to avoid path conflicts
+  find "$PROJECT_ROOT" -type d | sort -r | while read -r dir; do
+    local parent_dir=$(dirname "$dir")
+    local dir_name=$(basename "$dir")
+    local new_name=$(echo "$dir_name" | $SED "$RE_CC" | $SED "$RE_LC" | $SED "$RE_PC")
+
+    if [ "$dir_name" != "$new_name" ]; then
+      local new_path="$parent_dir/$new_name"
+      echo "Renaming directory: $dir -> $new_path"
+      mv "$dir" "$new_path"
     fi
   done
 }
 
-#rename_and_replace "$PROJECT_ROOT"
+# Function to rename files
+rename_files() {
+  echo "Renaming files..."
+  find "$PROJECT_ROOT" -type f | while read -r file; do
+    local parent_dir=$(dirname "$file")
+    local file_name=$(basename "$file")
+    local new_name=$(echo "$file_name" | $SED "$RE_CC" | $SED "$RE_LC" | $SED "$RE_PC")
+
+    if [ "$file_name" != "$new_name" ]; then
+      local new_path="$parent_dir/$new_name"
+      echo "Renaming file: $file -> $new_path"
+      mv "$file" "$new_path"
+    fi
+  done
+}
+
+# Execute the transformations
+echo "Starting project transformation..."
+echo "Project root: $PROJECT_ROOT"
+
+# 1. First, replace content in files
+replace_content_in_files
+
+# 2. Then rename files
+rename_files
+
+# 3. Finally, rename directories (deepest first)
+rename_directories
+
+echo "Project transformation completed!"
