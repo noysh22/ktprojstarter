@@ -1,0 +1,66 @@
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven", isolate = True)
+
+MAVEN_DEPS = [
+    "io.javalin:javalin:6.2.0",
+    "org.slf4j:slf4j-simple:2.0.12",
+    "org.assertj:assertj-core:3.25.3",
+    "io.netty:netty-all:4.1.109.Final",
+    "com.google.guava:guava:jar:33.3.0-jre",
+    "com.google.code.gson:gson:2.11.0",
+
+    # Testing Junit5
+    "org.junit.jupiter:junit-jupiter:jar:5.13.2",
+    "org.junit.jupiter:junit-jupiter-params:5.13.2",
+    "org.junit.platform:junit-platform-console:jar:1.13.2",
+
+    # kotlinx libs
+    "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0",
+    "org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.8.0",
+    #    "org.jetbrains.kotlinx:kotlinx-coroutines-guave:1.8.0",
+
+    # Ktor
+    "io.ktor:ktor-client-core:2.3.12",
+    "io.ktor:ktor-client-cio-jvm:2.3.12",
+    "io.ktor:ktor-http-jvm:2.3.12",
+]
+
+[
+    maven.override(
+        name = "maven_deps",
+        coordinates = coordinates,
+        target = target,
+    )
+    for (coordinates, target) in (
+        {
+            "org.jetbrains.kotlin:kotlin-reflect": "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-reflect",
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk7": "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-stdlib-jdk7",
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk8": "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-stdlib-jdk8",
+            "org.jetbrains.kotlin:kotlin-stdlib": "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-stdlib",
+
+            # Make sure there are no log4j dependencies included.
+            "org.slf4j:slf4j-log4j12": "@maven//:ch_qos_logback_logback_core",
+            "log4j:log4j": "@maven//:org_slf4j_log4j_over_slf4j",
+        }
+    ).items()
+]
+
+maven.install(
+    name = "maven_deps",
+    artifacts = MAVEN_DEPS,
+    fail_if_repin_required = True,
+    fetch_sources = True,
+    generate_compat_repositories = True,
+    lock_file = "//bazel/maven:maven_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2/",
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+        "https://repository.jboss.org/nexus/content/repositories/releases/",
+        "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/",
+        "https://repository.jboss.org",
+        "https://jitpack.io",
+        "https://buf.build/gen/maven",
+    ],
+    version_conflict_policy = "pinned",
+)
+use_repo(maven, maven = "maven_deps")

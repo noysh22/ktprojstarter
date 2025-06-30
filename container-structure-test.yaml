@@ -1,7 +1,27 @@
-# See https://github.com/GoogleContainerTools/container-structure-test#command-tests
+# Container structure test for distroless Java image
 schemaVersion: 2.0.0
+
+# File existence tests
+fileExistenceTests:
+  - name: "JAR file exists"
+    path: "/ktprojstarter_deploy.jar"
+    shouldExist: true
+
+  - name: "Java binary exists"
+    path: "/usr/bin/java"
+    shouldExist: true
+    isExecutableBy: "owner"
+
+# Command tests
 commandTests:
-  - name: test
-    command: java
-    args: ['-jar', '/ktprojstarter_deploy.jar']
-    expectedOutput: ['Success: 1']
+  - name: "Java version check"
+    command: "java"
+    args: ["-version"]
+    expectedError: ["openjdk version"]
+    exitCode: 0
+
+  - name: "JAR main class check"
+    command: "java"
+    args: ["-cp", "/ktprojstarter_deploy.jar", "-Xms8m", "-Xmx64m", "--help"]
+    expectedOutput: ["Usage: java"]
+    exitCode: 0

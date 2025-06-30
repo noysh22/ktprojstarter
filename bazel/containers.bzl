@@ -1,20 +1,42 @@
 #load("@rules_oci//oci:container.bzl", "oci_image")
 # You can pull your base images using oci_pull like this:
+load("@bazel_skylib//lib:modules.bzl", "modules")
 load("@rules_oci//oci:pull.bzl", "oci_pull")
 
-def load_containers():
-    oci_pull(
-        name = "distroless_java_debug",
-        digest = "sha256:2e235d2103a25f4e2c353cfa3d06503594a8762dcd8578baa14d410bc0221c38",
-        image = "gcr.io/distroless/java17",
-    )
-    oci_pull(
-        name = "distroless_java_debug_noroot",
-        digest = "sha256:b8eda5703e42fda1f599946490dad58b5187c24c1397395132e276a9399887af",
-        image = "gcr.io/distroless/java17",
-    )
-    oci_pull(
-        name = "distroless_java_noroot",
-        digest = "sha256:005351f8825ee898a7207140267277c401d779648fb6f0575acfa408c959f902",
-        image = "gcr.io/distroless/java17",
-    )
+images = [
+    # openjdk version "21.0.4" 2024-07-16 LTS
+    # OpenJDK Runtime Environment Temurin-21.0.4+7 (build 21.0.4+7-LTS)
+    {
+        "name": "java-21-distroless-nonroot",
+        "registry": "gcr.io",
+        "repository": "distroless/java21-debian12",
+        "tag": "noroot",
+        "platforms": [
+            "linux/amd64",
+            "linux/arm64/v8",
+        ],
+    },
+    {
+        "name": "java-21-distroless-debug",
+        "registry": "gcr.io",
+        "repository": "distroless/java21-debian12",
+        "tag": "debug",
+        "platforms": [
+            "linux/amd64",
+            "linux/arm64/v8",
+        ],
+    },
+]
+
+def _pull_containers():
+    for image in images:
+        oci_pull(
+            name = image["name"],
+            registry = image["registry"],
+            repository = image["repository"],
+            tag = image["tag"] if "digest" not in image else None,
+            digest = image.get("digest", None),
+            platforms = image.get("platforms", None),
+        )
+
+pull_containers = modules.as_extension(_pull_containers)
