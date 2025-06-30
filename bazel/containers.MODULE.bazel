@@ -1,0 +1,10 @@
+pull_containers = use_extension("//bazel:containers.bzl", "pull_containers")
+use_repo(
+    pull_containers,
+    "java-21-distroless-debug",
+    "java-21-distroless-debug_linux_amd64",
+    "java-21-distroless-debug_linux_arm64_v8",
+    "java-21-distroless-nonroot",
+    "java-21-distroless-nonroot_linux_amd64",
+    "java-21-distroless-nonroot_linux_arm64_v8",
+)

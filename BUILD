@@ -1,24 +1,30 @@
 load("@aspect_bazel_lib//lib:expand_template.bzl", "expand_template")
 load("@aspect_bazel_lib//lib:tar.bzl", "tar")
 load("@container_structure_test//:defs.bzl", "container_structure_test")
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library", "kt_jvm_test")
-load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+load("@io_bazel_rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_kotlinc_options")
+load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library", "kt_jvm_test")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
 
 package(default_visibility = ["//visibility:public"])
 
 PROJ_NAME = "ktprojstarter"
 
-java_binary(
-    name = PROJ_NAME,
-    data = [
-    ],
-    main_class = "io.proj.ktprojstarter.MainKt",
-    runtime_deps = [
-        ":%s_lib" % PROJ_NAME,
-    ],
+kt_kotlinc_options(
+    name = "kt_kotlinc_options",
+    warn = "report",
 )
 
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    api_version = "2.1",
+    experimental_multiplex_workers = True,
+    jvm_target = "21",
+    kotlinc_options = "//:kt_kotlinc_options",
+    language_version = "2.1",
+)
+
+# Main Kotlin library
 kt_jvm_library(
     name = PROJ_NAME + "_lib",
     srcs = glob(
@@ -28,61 +34,51 @@ kt_jvm_library(
     ),
     deps = [
         "@maven//:io_javalin_javalin",
-        "@maven//:org_slf4j_slf4j_api",
         "@maven//:org_slf4j_slf4j_simple",
     ],
 )
 
-java_library(
-    name = PROJ_NAME + "_java_test_deps",
-    testonly = True,
-    exports = [
-        "@maven//:io_javalin_javalin",
-        "@maven//:junit_junit",
-        "@maven//:org_assertj_assertj_core",
+# Java binary (executable JAR with all dependencies)
+java_binary(
+    name = PROJ_NAME,
+    main_class = "io.proj.ktprojstarter.MainKt",
+    runtime_deps = [
+        ":%s_lib" % PROJ_NAME,
     ],
 )
 
-kt_jvm_library(
-    name = PROJ_NAME + "_kotlin_test_deps",
-    testonly = True,
-    srcs = glob(["src/test/kotlin/**/*.kt"]),
+# Single test definition that collects all test files
+kt_jvm_test(
+    name = PROJ_NAME + "_tests",
+    args = [
+        "--scan-classpath",  # Discovers all tests in the classpath
+        # Optional: Include custom test name patterns (e.g., *Should.kt)
+        "--include-classname=.*(Test|Should)",
+    ],
+    main_class = "org.junit.platform.console.ConsoleLauncher",
     deps = [
         ":%s_lib" % PROJ_NAME,
         "@maven//:com_google_code_gson_gson",
-        "@maven//:io_javalin_javalin",
         "@maven//:io_ktor_ktor_client_cio_jvm",
         "@maven//:io_ktor_ktor_client_core",
-        "@maven//:junit_junit",
+        "@maven//:io_ktor_ktor_http_jvm",
         "@maven//:org_assertj_assertj_core",
-    ],
-)
-
-kt_jvm_test(
-    name = PROJ_NAME + "_kt_tests",
-    srcs = glob(["src/test/kotlin/**/*.kt"]),
-    test_class = "io.proj.ktprojstarter.ExampleTest",
-    deps = [
-        ":%s_kotlin_test_deps" % PROJ_NAME,
-    ],
-)
-
-java_test(
-    name = PROJ_NAME + "_tests",
-    test_class = "io.proj.ktprojstarter.ExampleTest",
-    runtime_deps = [
-        ":%s_kotlin_test_deps" % PROJ_NAME,
+        "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_test",
+        "@maven//:org_jetbrains_kotlinx_kotlinx_coroutines_test_jvm",
+        "@maven//:org_junit_jupiter_junit_jupiter",
+        "@maven//:org_junit_jupiter_junit_jupiter_params",
+        "@maven//:org_junit_platform_junit_platform_console",
     ],
 )
 
 tar(
     name = PROJ_NAME + "_layer",
-    srcs = [PROJ_NAME + "_deploy.jar"],
+    srcs = [":%s_deploy.jar" % PROJ_NAME],
 )
 
 oci_image(
     name = PROJ_NAME + "_image",
-    base = "@distroless_java_debug",
+    base = "@java-21-distroless-debug",
     entrypoint = [
         "java",
         "-jar",
@@ -111,9 +107,24 @@ oci_load(
     repo_tags = ":%s_stamped" % PROJ_NAME,
 )
 
-#container_structure_test(
-#    name = PROJ_NAME + "_container_test",
-#    configs = ["container-structure-test.yaml"],
-#    image = ":%s_image" % PROJ_NAME,
-#    tags = ["requires-docker"],
-#)
+# Container structure test (platform auto-detected)
+container_structure_test(
+    name = PROJ_NAME + "_container_test",
+    args = select({
+        "@platforms//cpu:arm64": [
+            "--platform",
+            "linux/arm64/v8",
+        ],
+        "@platforms//cpu:x86_64": [
+            "--platform",
+            "linux/amd64",
+        ],
+        "//conditions:default": [
+            "--platform",
+            "linux/amd64",
+        ],
+    }),
+    configs = ["container-structure-test.yaml"],
+    image = ":%s_image" % PROJ_NAME,
+    tags = ["requires-docker"],
+)

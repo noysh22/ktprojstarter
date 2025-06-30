@@ -5,6 +5,12 @@
 # based on the name of the directory bazel is cloned into.
 /bazel-*
 
+# Bazel files
+MODULE.bazel.lock
+.bazel/
+.bazelrc.user
+.bazelversion
+
 # Directories for the Bazel IntelliJ plugin containing the generated
 # IntelliJ project files and plugin configuration. Seperate directories are
 # for the IntelliJ, Android Studio and CLion versions of the plugin.
@@ -13,4 +19,102 @@
 /.clwb/
 /.idea/
 
-MODULE.bazel.lock
+# IDE files
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.metadata
+
+# Java/Kotlin compiled files
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Java/Kotlin build outputs
+build/
+target/
+out/
+dist/
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Docker/Container files
+.dockerignore
+
+# Test outputs
+test-results/
+test-output/
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage reports
+coverage/
+*.coverage
+*.lcov
+
+# Backup files
+*.bak
+*.backup
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle wrapper
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# IntelliJ IDEA specific
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+.idea/datasources.xml
+.idea/datasources/
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.idea/dbnavigator.xml
+
+# Kotlin specific
+.kotlin/
+*.kotlin_module
+*.kotlin_metadata

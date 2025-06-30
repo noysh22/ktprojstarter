@@ -8,7 +8,11 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.AfterAll
 
 data class TestData(val msg: String)
 
@@ -22,13 +26,13 @@ class ExampleTest {
         private val server = Server(port)
 
         @JvmStatic
-        @BeforeClass
+        @BeforeAll
         fun setupTests() {
             server.start()
         }
 
         @JvmStatic
-        @AfterClass
+        @AfterAll
         fun teardownTests() {
             server.stop()
         }
@@ -36,12 +40,12 @@ class ExampleTest {
         fun baseUrl() = "http://localhost:${server.port}"
     }
 
-    @Before
+    @BeforeEach
     fun setup() {
         client = HttpClient(CIO)
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         client.close()
     }
