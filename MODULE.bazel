@@ -64,3 +64,9 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 http_jar = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_jar")
 
 git_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+http_archive(
+    name = "com_github_grpc_grpc_kotlin",
+    strip_prefix = "grpc-kotlin-%s" % "1.4.2",
+    urls = ["https://github.com/grpc/grpc-kotlin/archive/refs/tags/v%s.tar.gz" % "1.4.2"],
+)
