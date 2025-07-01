@@ -76,6 +76,9 @@ kt_jvm_library(
 java_junit5_tests(
     name = "small_tests",
     size = "small",
+    data = glob([
+        "src/test/resources/**/*",
+    ]),
     test_classes = glob2pkg(
         include = [
             "src/test/kotlin/**/*Test.kt",
