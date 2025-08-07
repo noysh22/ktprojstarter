@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ktlint
+        name: ktlint
+        entry: scripts/ktlint.sh
+        language: system
+        files: \.kt$
+        stages: [pre-commit, pre-push]
