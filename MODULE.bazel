@@ -21,12 +21,6 @@ bazel_dep(name = "contrib_rules_jvm", version = "0.31.1")
 #bazel_dep(name = "protobuf", version = "33.1", repo_name = "com_google_protobuf")
 bazel_dep(name = "rules_oci", version = "2.2.3")
 bazel_dep(name = "container_structure_test", version = "1.21.1")
-# git_override kept in case needed for future fixes
-#git_override(
-#    module_name = "container_structure_test",
-#    commit = "56c7201716d770c0f820a9c19207ba2ea77c34f8",
-#    remote = "https://github.com/GoogleContainerTools/container-structure-test",
-#)
 
 # Linting tool - typically run manually, not needed as dependency
 #bazel_dep(name = "buildifier_prebuilt", version = "8.0.3")
