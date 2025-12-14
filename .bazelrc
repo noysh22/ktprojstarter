@@ -15,5 +15,5 @@ test --jvmopt=--add-opens=java.base/java.io=ALL-UNNAMED
 common --experimental_isolated_extension_usages
 
 # Rancher Desktop Docker configuration
-test --test_env=DOCKER_HOST=unix:///Users/noy/.rd/docker.sock
+test --test_env=DOCKER_HOST=unix:///var/folders/ty/c9_gq7392479kgsm85xn0q680000gn/T/podman/podman-machine-default-api.sock
 test --test_env=DOCKER_CONTEXT=default

@@ -3,26 +3,33 @@ module(
     version = "0.0.1",
 )
 
-bazel_dep(name = "stardoc", version = "0.8.0")
-bazel_dep(name = "platforms", version = "0.0.11")
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "bazel_features", version = "1.30.0")
-bazel_dep(name = "aspect_bazel_lib", version = "2.14.0")
-bazel_dep(name = "rules_pkg", version = "1.1.0")
-bazel_dep(name = "rules_java", version = "8.12.0")
-bazel_dep(name = "contrib_rules_jvm", version = "0.28.0")
-bazel_dep(name = "grpc-java", version = "1.71.0", repo_name = "io_grpc_grpc_java")
-bazel_dep(name = "rules_proto_grpc_python", version = "5.0.1")
-bazel_dep(name = "protobuf", version = "30.2", repo_name = "com_google_protobuf")
-bazel_dep(name = "rules_oci", version = "2.2.3")
-bazel_dep(name = "container_structure_test", version = "1.19.3")
-git_override(
-    module_name = "container_structure_test",
-    commit = "56c7201716d770c0f820a9c19207ba2ea77c34f8",
-    remote = "https://github.com/GoogleContainerTools/container-structure-test",
-)
+# Documentation generation - not currently used
+#bazel_dep(name = "stardoc", version = "0.8.0")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "bazel_features", version = "1.38.0")
+bazel_dep(name = "aspect_bazel_lib", version = "2.22.0")
 
-bazel_dep(name = "buildifier_prebuilt", version = "8.0.3")
+# Packaging tool - not currently used
+#bazel_dep(name = "rules_pkg", version = "1.1.0")
+bazel_dep(name = "rules_java", version = "8.12.0")
+bazel_dep(name = "contrib_rules_jvm", version = "0.31.1")
+
+# gRPC and protobuf - not currently used
+#bazel_dep(name = "grpc-java", version = "1.71.0", repo_name = "io_grpc_grpc_java")
+#bazel_dep(name = "rules_proto_grpc_python", version = "5.0.1")
+#bazel_dep(name = "protobuf", version = "33.1", repo_name = "com_google_protobuf")
+bazel_dep(name = "rules_oci", version = "2.2.3")
+bazel_dep(name = "container_structure_test", version = "1.21.1")
+# git_override kept in case needed for future fixes
+#git_override(
+#    module_name = "container_structure_test",
+#    commit = "56c7201716d770c0f820a9c19207ba2ea77c34f8",
+#    remote = "https://github.com/GoogleContainerTools/container-structure-test",
+#)
+
+# Linting tool - typically run manually, not needed as dependency
+#bazel_dep(name = "buildifier_prebuilt", version = "8.0.3")
 
 # Buf
 #bazel_dep(name = "rules_buf", version = "0.3.0")
@@ -42,7 +49,7 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.0.3")
 ## /OPA
 
 # Kotlin
-bazel_dep(name = "rules_kotlin", version = "2.1.3", repo_name = "io_bazel_rules_kotlin")
+bazel_dep(name = "rules_kotlin", version = "2.2.1", repo_name = "io_bazel_rules_kotlin")
 
 register_toolchains("//:kotlin_toolchain")
 # /Kotlin
@@ -51,7 +58,7 @@ register_toolchains("//:kotlin_toolchain")
 include("//bazel:containers.MODULE.bazel")
 
 # Maven
-bazel_dep(name = "rules_jvm_external", version = "6.7")
+bazel_dep(name = "rules_jvm_external", version = "6.9")
 
 include("//bazel/maven:maven.MODULE.bazel")
 # /Maven
